@@ -24,7 +24,7 @@ Agnode_t *delta(Agraph_t *g, Agnode_t *n, char c)
 			printf("%s\t", agnameof(e->node));
 			return e->node;
 		}
-	printf("No transition, this is an NFA\n");
+	printf("No transition for %c\n", c);
 	exit(1);
 }
 
@@ -38,15 +38,15 @@ void process(Agraph_t *g)
 		n = agfstout(g, fst)->node;
 	else
 		printf("Please create a `start' node");
-	while (scanf("%s", in) != EOF) {
+	while (printf("> "), scanf("%s", in) != EOF) {
 		len = strlen(in);
 		for (i = 0; i < len; i++) {
 			/* Scanned intput */
-			for (j = len - i; j < len; j++)
+			for (j = 0; j < i; j++)
 				putchar(in[j]);
 			n = delta(g, n, in[i]);
 			/* Unscanned input */
-			for (j = 0; j < len - i; j++)
+			for (j = i+1; j < len; j++)
 				putchar(in[j]);
 			putchar('\n');
 		}

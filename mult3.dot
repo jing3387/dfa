@@ -1,0 +1,13 @@
+digraph DFA {
+  // Configuration
+  rankdir=LR
+  node [shape=doublecircle] one
+  node [shape=circle] two three
+  node [shape=none label="" width=0 height=0] start
+
+  // Definition
+  start -> one
+  one -> two [label="0"]
+  two -> three [label="0"]
+  three -> one [label="0"]
+}
