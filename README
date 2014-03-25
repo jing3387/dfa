@@ -1,8 +1,10 @@
-# CDFA
-A discrete finite automaton simulator using C and Graphviz.
+# DFA
+A discrete finite automaton simulator using Graphviz.
 
 ## Features
-* Describe the finite automaton using the DOT language
-* Create a visualisation of the DOT language description of the DFA
+* Describe DFAs using the DOT language
 * Process a string using the description of the DFA to find accepted and
   rejected strings of the defined language
+
+## DOT language
+Able to be processed by graphviz tools to create a visualisation of a graph.

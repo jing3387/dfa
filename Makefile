@@ -1,20 +1,10 @@
 CC = clang
-CFLAGS = -g
+CFLAGS = -g -std=c99
 LDFLAGS = -lcgraph -lgvc
 
-NAME = cdfa
-SRC = cdfa.c
-OBJ = ${SRC:.c=.o}
-
-${NAME}: ${OBJ}
-	${CC} ${LDFLAGS} -o $@ ${OBJ}
-
-${OBJ}:
-
-.c.o:
-	${CC} ${CFLAGS} -c $<
+dfa: dfa.o
 
 clean:
-	rm -f ${NAME} ${OBJ}
+	rm -f *.o dfa
 
 .PHONY: clean
