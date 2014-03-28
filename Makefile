@@ -4,7 +4,12 @@ LDFLAGS = -lcgraph -lgvc
 
 dfa: dfa.o
 
-clean:
-	rm -f *.o dfa
+svg: dfa M1.dot.svg M2.dot.svg M3.dot.svg
 
-.PHONY: clean
+%.dot.svg: %.dot
+	./dfa -v $< > $@
+
+clean:
+	rm -f dfa *.o *.svg
+
+.PHONY: clean svg
