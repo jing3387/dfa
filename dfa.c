@@ -10,6 +10,8 @@
 #include "graphviz/cgraph.h"
 #include "graphviz/gvc.h"
 
+bool test;
+
 void init(Agraph_t *g);
 void vis(Agraph_t *g);
 Agnode_t *delta(Agraph_t *g, Agnode_t *n, char c);
@@ -30,27 +32,34 @@ Agnode_t *delta(Agraph_t *g, Agnode_t *n, char c)
 /* Run the DFA across strings provided from stdin. */
 void run(Agraph_t *g)
 {
-	int len;
-	char c, str[1024], *alphabet;
+	char c, *alphabet, *prompt, *str = NULL;
 	Agnode_t *n, *m, *fst;
+	size_t linecap;
+	ssize_t len;
 
+	/* Check for an alphabet and display it to the user. */
 	alphabet = agget(g, "alphabet");
 	if (!alphabet)
 		errx(EX_DATAERR, "error: no alphabet");
-	printf("alphabet = {%s}\n", alphabet);
+	if (!test)
+		printf("alphabet = {%s}\n", alphabet);
 
+	/* Get the state state and find the state it points to. */
 	fst = agnode(g, "start", FALSE);
-	if (fst)
-		n = agfstout(g, fst)->node;
+	n = agfstout(g, fst)->node;
+
+	if (!test)
+		prompt="> ";
 	else
-		errx(EX_DATAERR, "error: no start node");
+		prompt="";
 
 	/* Continously prompt the user for strings to run the DFA with until
 	 * `exit' is provided or the end-of-file is reached. */
-	while (printf("> "), scanf("%s", str) != EOF) {
+	while (printf("%s", prompt), (len = getline(&str, &linecap, stdin)) > 0) {
+		/* Remove the newline character. */
+		str[--len] = '\0';
 		if (strcmp(str, "exit") == 0)
 			exit(0);
-		len = strlen(str);
 
 		/* Check that all characters in the provided string are from
 		 * the given alphabet. */
@@ -74,25 +83,31 @@ void run(Agraph_t *g)
 				goto input_warning;
 			}
 
-			/* Scanned intput */
-			for (int j = 0; j < i; j++)
-				putchar(str[j]);
+			if (!test) {
+				/* Scanned intput */
+				for (int j = 0; j < i; j++)
+					putchar(str[j]);
 
-			/* Transition; it isn't safe to use `agnameof' twice in
-			 * the same statement as a temporary buffer is used
-			 * between calls. */
-			printf("\t%s -- %c --> ", agnameof(n), str[i]);
-			printf("%s\t", agnameof(m));
+				/* Transition; it isn't safe to use `agnameof'
+				 * twice in the same statement as a temporary
+				 * buffer is used between calls. */
+				printf("\t%s -- %c --> ", agnameof(n), str[i]);
+				printf("%s\t", agnameof(m));
 
-			/* Unscanned input */
-			for (int j = i + 1; j < len; j++)
-				putchar(str[j]);
-			putchar('\n');
+				/* Unscanned input */
+				for (int j = i + 1; j < len; j++)
+					putchar(str[j]);
+				putchar('\n');
+			}
 
 			n = m;
 		}
 
-		if (!strcmp(agget(n, "shape"), "doublecircle"))
+		if (test && strcmp(agget(n, "shape"), "doublecircle") == 0)
+			printf("%s\n", str);
+		else if (test)
+			;
+		else if (!strcmp(agget(n, "shape"), "doublecircle"))
 			printf("Accepted\n");
 		else
 			printf("Declined\n");
@@ -130,15 +145,14 @@ void init(Agraph_t *g)
 	for (char *q = strtok(accept, sep); q; q = strtok(NULL, sep)) {
 		n = agnode(g, q, FALSE);
 		if (!n)
-			errx(EX_DATAERR, "error: no node %s from final states",
-					q);
+			errx(EX_DATAERR, "error: accept: no state %s", q);
 		agset(n, "shape", "doublecircle");
 	}
 
 	/* Set start state attributes; the node shouldn't be displayed. */
 	n = agnode(g, "start", FALSE);
 	if (!n)
-		errx(EX_DATAERR, "error: no start start");
+		errx(EX_DATAERR, "error: no start state");
 	agset(n, "shape", "none");
 	agset(n, "width", "0");
 	agset(n, "height", "0");
@@ -159,17 +173,17 @@ int main(int argc, char *argv[])
 	Agraph_t *g;
 	FILE *fd;
 	char ch;
-	bool v;
+	bool v, t;
 
 	while ((ch = getopt(argc, argv, "tv?")) != -1) {
 		switch (ch) {
 		case 'v':
 			v = true;
 			break;
-		/*case 't':
-			t = true;
+		case 't':
+			test = true;
 			break;
-		case '?':
+		/*case '?':
 			usage();*/
 		}
 	}

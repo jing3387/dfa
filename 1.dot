@@ -1,0 +1,19 @@
+digraph 1 {
+  accept="6, 7, 10";
+
+  start -> 0;
+  0 -> 1 [label="ε"];
+  0 -> 7 [label="ε"];
+  1 -> 2 [label="ε"];
+  1 -> 5 [label="ε"];
+  2 -> 3 [label="a"];
+  3 -> 4 [label="b"];
+  4 -> 5 [label="a"];
+  5 -> 2 [label="ε"];
+  5 -> 6 [label="b"];
+  7 -> 8 [label="ε"];
+  8 -> 9 [label="b, ε"];
+  9 -> 8 [label="ε"];
+  9 -> 10 [label="a"];
+  10 -> 8 [label="ε"];
+}

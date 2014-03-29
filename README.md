@@ -1,19 +1,28 @@
 # DFA
-A Deterministic Finite Automata simulator using the DOT language.
-
-## Usage
-./dfa file
-
-## Included machines
-* M1.dot: (aba)*b
-* M2.dot: (b*a)*
-* M.dot: (aba)*b|(b*a)*
-* Min.dot: a minimised version of M
+A Deterministic Finite Automata simulator using the DOT language and Graphviz
+libraries.
 
 ## Features
 * Describe DFAs using the DOT language
-* Process a string using the description of the DFA to find accepted and
-  rejected strings of the DFA's language
+* Run a DFA across strings in an interactive prompt with tracing
+* Visualise the DFA as an SVG
 
-## The DOT language
-Able to be processed by Graphviz tools to create a visualisation of the DFA.
+## Usage
+./dfa [-vt?] file
+
+* v: output an SVG to stdout
+* t: test a DFA by only printing valid strings
+* file: If not -v, file should be a DFA
+
+## Files
+* dfa.c: main source
+* 1.dot: An NFA for the regular expression (aba)*b|(b*a)*; in a dot file for
+visualisation purposes
+* 2.dot: A DFA for the NFA in 1.dot
+* 3.dot: A minimised version of the DFA in 2.dot
+
+## Testing
+* Input strings generated with the [regular expression grammar language dictionary
+generator](http://regldg.com/) using the regular expression (a|b)*
+* Expected output created using the command:
+`$ egrep -w '(aba)*b|(b*a)*' tests/in > tests/expected`

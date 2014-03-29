@@ -4,7 +4,7 @@ LDFLAGS = -lcgraph -lgvc
 
 dfa: dfa.o
 
-svg: dfa M1.dot.svg M2.dot.svg M3.dot.svg
+svg: dfa 1.dot.svg 2.dot.svg
 
 %.dot.svg: %.dot
 	./dfa -v $< > $@

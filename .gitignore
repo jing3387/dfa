@@ -1,3 +1,4 @@
-*.o
 dfa
+.DS_STORE
+*.o
 *.svg
