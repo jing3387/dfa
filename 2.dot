@@ -1,4 +1,4 @@
-digraph N1 {
+digraph 2 {
   alphabet="a, b";
   accept="0, 1, 2, 3, 6";
 
@@ -15,8 +15,6 @@ digraph N1 {
   4 -> 5 [label="b"];
   5 -> 3 [label="a"];
   5 -> 5 [label="b"];
-  6 -> 7 [label="a"];
-  6 -> 3 [label="b"];
-  7 -> 3 [label="a"];
-  7 -> 4 [label="b"];
+  6 -> 1 [label="a"];
+  6 -> 2 [label="b"];
 }

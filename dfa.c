@@ -11,11 +11,13 @@
 #include "graphviz/gvc.h"
 
 bool test;
+char *usages = "usage: dfa [-tv?] file\n";
 
 void init(Agraph_t *g);
 void vis(Agraph_t *g);
 Agnode_t *delta(Agraph_t *g, Agnode_t *n, char c);
 void run(Agraph_t *g);
+void usage(void);
 
 /* Try to find the delta transition for a given state and character. Returns
  * the next state if found, else returns NULL. */
@@ -44,7 +46,7 @@ void run(Agraph_t *g)
 	if (!test)
 		printf("alphabet = {%s}\n", alphabet);
 
-	/* Get the state state and find the state it points to. */
+	/* Get the start state and find the state it points to. */
 	fst = agnode(g, "start", FALSE);
 	n = agfstout(g, fst)->node;
 
@@ -58,6 +60,8 @@ void run(Agraph_t *g)
 	while (printf("%s", prompt), (len = getline(&str, &linecap, stdin)) > 0) {
 		/* Remove the newline character. */
 		str[--len] = '\0';
+
+		/* Check for `exit' from user */
 		if (strcmp(str, "exit") == 0)
 			exit(0);
 
@@ -68,7 +72,7 @@ void run(Agraph_t *g)
 			if (!strchr(alphabet, str[i])) {
 				warnx("warning: %c isn't in the alphabet",
 						str[i]);
-				goto input_warning;
+				goto input_exception;
 			}
 
 		/* Run the DFA across the string. */
@@ -80,7 +84,7 @@ void run(Agraph_t *g)
 			if (!m) {
 				warnx("warning: no delta(%s, %c)", agnameof(n),
 						str[i]);
-				goto input_warning;
+				goto input_exception;
 			}
 
 			if (!test) {
@@ -103,16 +107,18 @@ void run(Agraph_t *g)
 			n = m;
 		}
 
-		if (test && strcmp(agget(n, "shape"), "doublecircle") == 0)
-			printf("%s\n", str);
-		else if (test)
-			;
-		else if (!strcmp(agget(n, "shape"), "doublecircle"))
-			printf("Accepted\n");
+		if (!strcmp(agget(n, "shape"), "doublecircle"))
+			if (!test)
+				printf("Accepted\n");
+			else
+				printf("%s\n", str);
 		else
-			printf("Declined\n");
+			if (!test)
+				printf("Declined\n");
+			else
+				;
 
-input_warning:
+input_exception:
 		n = agfstout(g, fst)->node;
 	}
 }
@@ -168,6 +174,12 @@ void vis(Agraph_t *g)
 	gvFreeContext(gvc);
 }
 
+void usage()
+{
+	fprintf(stderr, "%s", usages);
+	exit(1);
+}
+
 int main(int argc, char *argv[])
 {
 	Agraph_t *g;
@@ -183,15 +195,17 @@ int main(int argc, char *argv[])
 		case 't':
 			test = true;
 			break;
-		/*case '?':
-			usage();*/
+		case '?':
+			usage();
 		}
 	}
 
-	if (argv[optind])
+	if (optind < argc)
 		fd = fopen(argv[optind], "r");
-	else
-		errx(EX_NOINPUT, "error: no input file");
+	if (!fd) {
+		warnx("error: no input file");
+		usage();
+	}
 	g = agread(fd, NULL);
 	fclose(fd);
 
